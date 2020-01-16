@@ -17,6 +17,8 @@ for i, item in enumerate(df):
                     if(math.isnan(item_)):
                         df.iloc[:,i].iloc[j] = -1
                 #print(df.iloc[:,i].dtype.name)
+            elif (column.dtype == bool):
+                df.iloc[:, i] = column.map(lambda x: 1 if x == True else 0)
             else:
                 for j, item_ in enumerate(column):
                     if(pd.isnull(item_) or item_ == 'None' or item_ is None or item_ == 'na'):
