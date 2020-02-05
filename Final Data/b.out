@@ -1,0 +1,59 @@
+nohup: ignoring input
+Finished import libraries
+Original training datapoints: 30000
+SMOTE oversampled datapoints: 49626
+ga
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/externals/loky/process_executor.py", line 418, in _process_worker
+    r = call_item()
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/externals/loky/process_executor.py", line 272, in __call__
+    return self.fn(*self.args, **self.kwargs)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/_parallel_backends.py", line 608, in __call__
+    return self.func(*args, **kwargs)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/parallel.py", line 256, in __call__
+    for func, args, kwargs in self.items]
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/parallel.py", line 256, in <listcomp>
+    for func, args, kwargs in self.items]
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/feature_selection/_rfe.py", line 33, in _rfe_single_fit
+    X_train, y_train, lambda estimator, features:
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/feature_selection/_rfe.py", line 206, in _fit
+    ranks = np.argsort(safe_sqr(coefs))
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/utils/__init__.py", line 719, in safe_sqr
+    X = check_array(X, accept_sparse=['csr', 'csc', 'coo'], ensure_2d=False)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/utils/validation.py", line 578, in check_array
+    allow_nan=force_all_finite == 'allow-nan')
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/utils/validation.py", line 60, in _assert_all_finite
+    msg_dtype if msg_dtype is not None else X.dtype)
+ValueError: Input contains NaN, infinity or a value too large for dtype('float32').
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "xgboost-rfecv.py", line 67, in <module>
+    piper.fit(X_train, y_train)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/pipeline.py", line 350, in fit
+    Xt, fit_params = self._fit(X, y, **fit_params)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/pipeline.py", line 315, in _fit
+    **fit_params_steps[name])
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/memory.py", line 355, in __call__
+    return self.func(*args, **kwargs)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/pipeline.py", line 728, in _fit_transform_one
+    res = transformer.fit_transform(X, y, **fit_params)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/base.py", line 574, in fit_transform
+    return self.fit(X, y, **fit_params).transform(X)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/sklearn/feature_selection/_rfe.py", line 533, in fit
+    for train, test in cv.split(X, y, groups))
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/parallel.py", line 1017, in __call__
+    self.retrieve()
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/parallel.py", line 909, in retrieve
+    self._output.extend(job.get(timeout=self.timeout))
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/joblib/_parallel_backends.py", line 562, in wrap_future_result
+    return future.result(timeout=timeout)
+  File "/usr/lib/python3.6/concurrent/futures/_base.py", line 432, in result
+    return self.__get_result()
+  File "/usr/lib/python3.6/concurrent/futures/_base.py", line 384, in __get_result
+    raise self._exception
+ValueError: Input contains NaN, infinity or a value too large for dtype('float32').

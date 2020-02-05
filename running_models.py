@@ -37,6 +37,7 @@ print("SMOTE oversampled datapoints:",len(X_train))
 X_test = test.drop(columns = 'id')
 X_train, X_train_cv, y_train, y_train_cv = train_test_split(X_train, y_train, test_size=0.05, random_state=42)
 
+'''
 classifiers = (LogisticRegression(n_jobs=-1),  SVC(),RandomForestClassifier(n_jobs=-1), XGBClassifier(n_jobs=-1))
 params = (
     [
@@ -79,8 +80,21 @@ params = (
          "n_estimators" :[100, 200, 400]
     }
 )
+'''
 # Implement the classifier
+classifiers = [RandomForestClassifier()]
+params = [{
+        'criterion':['entropy','gini'],
+        'bootstrap': [True, False],
+        'max_depth': [5, 10, 20, 30, 50],
+        'max_features': ['auto', 'sqrt'],
+        'min_samples_leaf': [5, 10, 20, 50],
+        'min_samples_split': [ 5, 10,30,50, 70],
+        'n_estimators': [100,200, 300]
+    }]
 
+
+'''
 for i in range(len(params)):
     print("Model Start")
     result = test[['id']]
@@ -89,3 +103,4 @@ for i in range(len(params)):
     result['label'] = p01.score_optimization(param, clf, 'roc_auc',X_train, X_train_cv, y_train, y_train_cv, X_test, 5)
     result.to_csv('Result/PCA-100-'+clf.__class__.__name__+'.csv', index = False)
     print("*"*20)
+'''

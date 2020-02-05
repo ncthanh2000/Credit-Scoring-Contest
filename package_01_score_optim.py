@@ -1,6 +1,7 @@
 import warnings
-
+import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
 # Classifier Libraries
 import scikitplot as skplt
 # Other Libraries
@@ -40,6 +41,28 @@ def score_optimization(_params, _clf, _metric,X_train, X_train_cv, y_train, y_tr
         y_probas = predicted_probas
         skplt.metrics.plot_roc_curve(y_true, y_probas)
         plt.show()
+
+        # Plot the feature importances of the forest
+        importances = best.feature_importances_
+        std = np.std([tree.feature_importances_ for tree in best.estimators_],
+                     axis=0)
+
+        indices = np.argsort(importances)[::-1]
+        plt.figure()
+        plt.title("Feature importances")
+        plt.bar(range(X_train.shape[1]), importances[indices],
+                color="r", yerr=std[indices], align="center")
+        plt.xticks(range(X_train.shape[1]), indices)
+        plt.xlim([-1, X_train.shape[1]])
+        plt.xticks(rotation=90)
+        plt.show()
+
+        print(std)
+
+        print(importances)
+
+        for f in range(X_train.shape[1]):
+            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
 
         # Now predict on X_test
         return best.predict_proba(X_test)[:, 1]

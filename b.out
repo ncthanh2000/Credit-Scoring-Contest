@@ -1,0 +1,24 @@
+nohup: ignoring input
+Finished import libraries
+Traceback (most recent call last):
+  File "xgboost-rfecv.py", line 19, in <module>
+    test = pd.read_excel(r'Final Data/Test - Std Data.xlsx')
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/util/_decorators.py", line 208, in wrapper
+    return func(*args, **kwargs)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/io/excel/_base.py", line 310, in read_excel
+    io = ExcelFile(io, engine=engine)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/io/excel/_base.py", line 819, in __init__
+    self._reader = self._engines[engine](self._io)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/io/excel/_xlrd.py", line 21, in __init__
+    super().__init__(filepath_or_buffer)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/io/excel/_base.py", line 359, in __init__
+    self.book = self.load_workbook(filepath_or_buffer)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/pandas/io/excel/_xlrd.py", line 36, in load_workbook
+    return open_workbook(filepath_or_buffer)
+  File "/home/thanhnc/projects/kalapa_credit_scoring/venv/lib/python3.6/site-packages/xlrd/__init__.py", line 117, in open_workbook
+    zf = zipfile.ZipFile(filename)
+  File "/usr/lib/python3.6/zipfile.py", line 1131, in __init__
+    self._RealGetContents()
+  File "/usr/lib/python3.6/zipfile.py", line 1198, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file

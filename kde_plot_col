@@ -1,0 +1,7 @@
+columns = ['Community Area', 'Latitude', 'Longitude','Year','PERCENT OF HOUSING CROWDED', 
+           'PERCENT HOUSEHOLDS BELOW POVERTY', 'PERCENT AGED 16+ UNEMPLOYED', 
+           'PERCENT AGED 25+ WITHOUT HIGH SCHOOL DIPLOMA', 'PERCENT AGED UNDER 18 OR OVER 64', 
+           'PER CAPITA INCOME ', 'HARDSHIP INDEX']
+
+
+def kde_col_plot(_df, _col):
