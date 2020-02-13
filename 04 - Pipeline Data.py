@@ -8,7 +8,7 @@ import variance_plot as vp
 # REMEMBER TO DROP LABEL COLUMNS WHEN DOING DATA CLEANING PIPELINE FOR TRAIN DATA
 _df = pd.read_excel(r'Data\train.xlsx', dtype={'FIELD_45': str})
 __df = pd.read_excel(r'Data\test.xlsx', dtype={'FIELD_45': str})
-def pipeline_data(df, _dropLabel):
+def pipeline_data(df):
     import pandas as pd
     import numpy as np
     import math
@@ -147,85 +147,88 @@ def pipeline_data(df, _dropLabel):
     df.drop(columns='FIELD_7', inplace=True)
     df = pd.concat([df, word_vector], axis=1)
 
-    # GET PCA DATA
-    if(_dropLabel == True):
+    return df
 
-        columns_in_test = ['FIELD_7 - AT', 'FIELD_7 - HG', 'FIELD_7 - HK', 'FIELD_7 - ND',
-       'FIELD_7 - QT', 'FIELD_7 - TL', 'FIELD_7 - XB', 'FIELD_9_74',
-       'FIELD_9_CK', 'FIELD_9_TL', 'FIELD_12_DK', 'FIELD_12_DN', 'FIELD_12_DT',
-       'FIELD_12_GD', 'FIELD_12_XK', 'FIELD_13_12', 'FIELD_13_A1',
-       'FIELD_13_AE', 'FIELD_13_BJ', 'FIELD_13_BW', 'FIELD_13_CG',
-       'FIELD_13_CL', 'FIELD_13_DL', 'FIELD_13_DM', 'FIELD_13_EK',
-       'FIELD_13_EU', 'FIELD_13_FT', 'FIELD_13_H2', 'FIELD_13_H5',
-       'FIELD_13_H7', 'FIELD_13_IS', 'FIELD_13_KX', 'FIELD_13_N7',
-       'FIELD_13_NM', 'FIELD_13_NP', 'FIELD_13_NY', 'FIELD_13_QQ',
-       'FIELD_13_QS', 'FIELD_13_SB', 'FIELD_13_SZ', 'FIELD_13_ZA',
-        'FIELD_39_AN', 'FIELD_39_AO','FIELD_39_AT', 'FIELD_39_CH',
-        'FIELD_39_ID', 'FIELD_39_WS']
-        for i in range(len(columns_in_test)):
-            df[columns_in_test[i]] = 0
-        #Train Data
-        label = df[['label']]
-        df.drop(columns = 'label', inplace = True)
-        import variance_plot as vp
-        id = df[['id']]
-        df.drop(columns=['maCv', 'province', 'district', 'id'], inplace=True)
-        df = pd.get_dummies(df)
+df_test_fillNa = pipeline_data(__df)
+df_train_fillNa = pipeline_data(_df)
 
-        df_std = df.copy()
-        from sklearn.preprocessing import StandardScaler
-        __ = StandardScaler().fit_transform(df_std)
-        df_std = pd.DataFrame(__, columns=df.columns)
-        df_pca, df_var = vp.pca_transform(df_std, 100)
+# df_val_fillNa = df_train_fillNa.iloc[29000:]
+# df_train_fillNa = df_train_fillNa.iloc[:29000]
 
-        df_std = pd.concat([label, df_std], axis=1)
-        df_pca = pd.concat([label, df_pca], axis=1)
+# val_label = df_val_fillNa[['label']]
+# val_id = df_val_fillNa[['id']]
 
-        df_std = pd.concat([id, df_std], axis=1)
-        df_pca = pd.concat([id, df_pca], axis=1)
-    else:
-        #Test Data
-        columns_in_train = ['FIELD_7 - LS', 'FIELD_7 - QN', 'FIELD_9_79', 'FIELD_9_80',
-       'FIELD_9_86', 'FIELD_9_MS', 'FIELD_9_NO', 'FIELD_9_XN', 'FIELD_12_TN',
-       'FIELD_13_8', 'FIELD_13_AY', 'FIELD_13_BU', 'FIELD_13_CC',
-       'FIELD_13_CD', 'FIELD_13_CH', 'FIELD_13_CJ', 'FIELD_13_CR',
-       'FIELD_13_CZ', 'FIELD_13_DB', 'FIELD_13_DC', 'FIELD_13_DF',
-       'FIELD_13_DI', 'FIELD_13_DQ', 'FIELD_13_DW', 'FIELD_13_E2',
-       'FIELD_13_EE', 'FIELD_13_EG', 'FIELD_13_EH', 'FIELD_13_EI',
-       'FIELD_13_EL', 'FIELD_13_EN', 'FIELD_13_F1', 'FIELD_13_FN',
-       'FIELD_13_FS', 'FIELD_13_FU', 'FIELD_13_FV', 'FIELD_13_GB',
-       'FIELD_13_H1', 'FIELD_13_HY', 'FIELD_13_IC', 'FIELD_13_NT',
-       'FIELD_13_NW', 'FIELD_13_QU', 'FIELD_13_QX', 'FIELD_13_SE',
-       'FIELD_13_SF', 'FIELD_13_SI', 'FIELD_13_SN', 'FIELD_13_SP',
-       'FIELD_13_SR', 'FIELD_13_SV', 'FIELD_13_YF', 'FIELD_17_G2',
-       'FIELD_39_AD', 'FIELD_39_AE', 'FIELD_39_BE',
-       'FIELD_39_CA', 'FIELD_39_GB', 'FIELD_39_IT', 'FIELD_39_N',
-       'FIELD_39_SC', 'FIELD_39_SE', 'FIELD_39_TK', 'FIELD_39_TL',
-       'FIELD_39_TR', 'FIELD_39_TS', 'FIELD_40_05 08 11 02', 'FIELD_40_08 02',
-       'FIELD_40_4']
-        for i in range(len(columns_in_train)):
-            df[columns_in_train[i]] = 0
+df_train_fillNa.drop(columns=['maCv', 'province', 'district'], inplace=True)
+df_test_fillNa.drop(columns=['maCv', 'province', 'district'], inplace=True)
 
-        import variance_plot as vp
-        id = df[['id']]
-        df.drop(columns=['maCv', 'province', 'district', 'id'], inplace=True)
-        df = pd.get_dummies(df)
-        df_std = df.copy()
-        from sklearn.preprocessing import StandardScaler
-        __ = StandardScaler().fit_transform(df_std)
-        df_std = pd.DataFrame(__, columns=df.columns)
-        df_pca, df_var = vp.pca_transform(df_std, 100)
+df_test_fillNa = pd.get_dummies(df_test_fillNa)
+df_train_fillNa = pd.get_dummies(df_train_fillNa)
 
-        df_std = pd.concat([id, df_std], axis=1)
-        df_pca = pd.concat([id, df_pca], axis=1)
-    return df_fillNa,df_std,df_pca
+columns_in_test = list(set(df_test_fillNa.columns.tolist()).difference(set(df_train_fillNa.columns.tolist())))
+columns_in_train = list(set(df_train_fillNa.columns).difference(set(df_test_fillNa.columns)))
 
-df_train_fillNa,df_train_std,df_train_pca = pipeline_data(_df, True)
+
+print(columns_in_test)
+print(columns_in_train)
+print("helloooooooooooooooooooooooooooooooooooooooooooooooooooooo")
+columns_in_train.remove('label')
+print(columns_in_train)
+print(list(set(df_test_fillNa.columns.tolist()).symmetric_difference(set(df_train_fillNa.columns.tolist()))))
+
+#Train Data
+#Drop Mismatch Columns
+#df_train_fillNa.drop(columns = 'label', inplace = True)
+df_train_fillNa.drop(columns = columns_in_train, inplace = True)
+df_test_fillNa.drop(columns = columns_in_test, inplace = True)
+print(list(set(df_test_fillNa.columns.tolist()).symmetric_difference(set(df_train_fillNa.columns.tolist()))))
+
+
+
+#Train validation split
+df_val_fillNa = df_train_fillNa.iloc[29000:]
+df_train_fillNa = df_train_fillNa.iloc[:29000]
+train_label = df_train_fillNa[['id','label']]
+val_label = df_val_fillNa[['id','label']]
+print(val_label.head(3))
+df_train_fillNa.drop(columns = ['id','label'], inplace = True)
+df_val_fillNa.drop(columns = ['id','label'], inplace = True)
+test_id = df_test_fillNa[['id']]
+df_test_fillNa.drop(columns = 'id', inplace = True)
+
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler().fit(df_train_fillNa)
+__ = scaler.transform(df_train_fillNa)
+df_train_std = pd.DataFrame(__, columns=df_train_fillNa.columns)
+df_train_std = pd.concat([train_label, df_train_std], axis=1)
+
+
+#Test Data
+
+__ = scaler.transform(df_test_fillNa)
+df_test_std = pd.DataFrame(__, columns=df_test_fillNa.columns)
+df_test_std = pd.concat([test_id, df_test_std], axis=1)
+
+#Validation Data
+
+
+__ = scaler.transform(df_val_fillNa)
+df_val_std = pd.DataFrame(__, columns=df_val_fillNa.columns)
+df_val_std.reset_index(drop = True, inplace = True)
+val_label.reset_index(drop = True, inplace = True)
+df_val_std = pd.concat([val_label, df_val_std],axis=1)
+
+print(df_val_std['label'].value_counts())
+
+
 df_train_fillNa.to_excel(r'Final Data/Train - FillNa Data.xlsx', index = False)
-df_train_pca.to_excel(r'Final Data/Train - PCA - 100.xlsx', index = False)
 df_train_std.to_excel(r'Final Data/Train - Std Data.xlsx', index = False)
 
-df_test_fillNa,df_test_std,df_test_pca = pipeline_data(__df, False)
 df_test_fillNa.to_excel(r'Final Data/Test - FillNa Data.xlsx', index = False)
-df_test_pca.to_excel(r'Final Data/Test - PCA - 100.xlsx', index = False)
 df_test_std.to_excel(r'Final Data/Test - Std Data.xlsx', index = False)
+
+
+df_val_fillNa.to_excel(r'Final Data/Validate - FillNa Data.xlsx', index = False)
+df_val_std.to_excel(r'Final Data/Validate - Std Data.xlsx', index = False)
+
+print(len(val_label))

@@ -1,3 +1,8 @@
+pandas
+lightgbm
+matplotlib
+scikit-learn
 xgboost
 scikit-plot
+mlxtend
 imblearn

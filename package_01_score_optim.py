@@ -1,17 +1,23 @@
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
+import warnings
+
+from sklearn import model_selection
+
+warnings.simplefilter('ignore')
+from mlxtend.classifier import StackingCVClassifier
+
 # Classifier Libraries
 import scikitplot as skplt
 # Other Libraries
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score
 
 warnings.filterwarnings("ignore")
 
 
-def score_optimization(_params, _clf, _metric,X_train, X_train_cv, y_train, y_train_cv, X_test, _cv):
-
+def score_optimization(_clf, _params, _metric, X_train, X_val, y_train, y_val, _cv):
+    # noinspection PyRedundantParentheses
     if (_params != None):
         # Load GridSearchCV
         search = GridSearchCV(
@@ -33,54 +39,59 @@ def score_optimization(_params, _clf, _metric,X_train, X_train_cv, y_train, y_tr
         print('Best parameters: \n\n', search.best_params_, '\n')
 
         # Cross-validate on the train data
-        #Uncomment this to see how the best estimator performs, rather than just knowing what best estimator is
-        # Maybe change the cv to something smaller
-        # Now predict on X_train_cv
-        predicted_probas = best.predict_proba(X_train_cv)
-        y_true = y_train_cv
-        y_probas = predicted_probas
-        skplt.metrics.plot_roc_curve(y_true, y_probas)
-        plt.show()
+        # Uncomment this to see how the best estimator performs, rather than just knowing what best estimator is
+        cv_score = cross_val_score(X=X_train, y=y_train, estimator=best, scoring=_metric, cv=_cv)
 
-        # Plot the feature importances of the forest
-        importances = best.feature_importances_
-        std = np.std([tree.feature_importances_ for tree in best.estimators_],
-                     axis=0)
-
-        indices = np.argsort(importances)[::-1]
-        plt.figure()
-        plt.title("Feature importances")
-        plt.bar(range(X_train.shape[1]), importances[indices],
-                color="r", yerr=std[indices], align="center")
-        plt.xticks(range(X_train.shape[1]), indices)
-        plt.xlim([-1, X_train.shape[1]])
-        plt.xticks(rotation=90)
-        plt.show()
-
-        print(std)
-
-        print(importances)
-
-        for f in range(X_train.shape[1]):
-            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
-
-        # Now predict on X_test
-        return best.predict_proba(X_test)[:, 1]
+        return best, cv_score
     else:
-        #Run with defaul parameters
+        # Run with defaul parameters
         _clf.fit(X_train, y_train)
         # Heading
         print('\n', '-' * 40, '\n', _clf.__class__.__name__, '\n', '-' * 40)
-        predicted_probas = _clf.predict_proba(X_train_cv)
-        y_true = y_train_cv
+        predicted_probas = _clf.predict_proba(X_val)
+        y_true = y_val
         y_probas = predicted_probas
         skplt.metrics.plot_roc_curve(y_true, y_probas)
         plt.show()
-
+        return None, None
         # Now predict on X_test
-        return _clf.predict_proba(X_test)[:, 1]
+        # return _clf.predict_proba(X_test)[:, 1]
 
 
+def best_cv_score_classifier(_clf_list, _params_list, _metric, X_train, X_val, y_train, y_val, _cv):
+    models = []
+    scores = np.arange(0)
+
+    for i in range(len(_clf_list)):
+        # print(_clf_list[i] + '\n' + _params_list[i])
+        model, score = score_optimization(_clf_list[i], _params_list[i], _metric, X_train,
+                                          X_val, y_train, y_val, _cv)
+        models.append(model)
+        scores = np.append(scores, score)
+
+    # Models is a list with best classifiers of each classifier (best XGB, best LGBM, best RF...)
+    # List of indices with the highest overall (in the case where there are ties)
+    result = np.where(scores == np.amax(scores))
+    # Get first value if there are more than 1 max
+    index = result[0][0]
+
+    best_clf = models[index]
+    return models, index
 
 
+def Stacking(_stacking_model_list, _final_clf, _metric,X_train, X_val, y_train, y_val, X_test, _cv):
+    # Might wanna consider remove _final_clf from the _stacking_model_list
+    sclf = StackingCVClassifier(classifiers=_stacking_model_list,  use_probas=True,
+                                meta_classifier=_final_clf,  random_state=42)
+    scores = model_selection.cross_val_score(sclf, X_train, y_train, cv=_cv, scoring=_metric)
+    print('Cross-validated score:',scores)
+    print('-' * 20)
+    predicted_probas = sclf.predict_proba(X_val)
+    y_true = y_val
+    y_probas = predicted_probas
+    skplt.metrics.plot_roc_curve(y_true, y_probas)
+    plt.savefig(r'Result/' + sclf.__class__.__name__ + 'stacking.png')
+    plt.show()
 
+    prediction = sclf.predict_proba(X_test)[:, 1]
+    return prediction

@@ -1,6 +1,7 @@
 #Basic Libraries
 import pandas as pd
 import numpy as np
+from lightgbm import LGBMClassifier
 # Other Libraries
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import RFECV
@@ -24,12 +25,11 @@ y = train['label']
 
 #Oversample
 from imblearn.combine import SMOTEENN
-X_train, y_train = X,y
 
-X_train, X_train_cv, y_train, y_train_cv = train_test_split(X_train, y_train, test_size=0.05, random_state=42)
+X_train, X_train_cv, y_train, y_train_cv = train_test_split(X,y, test_size=0.05, random_state=42)
 
 
-X_train, y_train = SMOTEENN(sampling_strategy = 'minority', random_state=42).fit_resample(X,y)
+X_train, y_train = SMOTEENN(sampling_strategy = 'minority', random_state=42).fit_resample(X_train, y_train)
 print("Original training datapoints:", len(X))
 print("SMOTE oversampled datapoints:",len(X_train))
 
@@ -43,9 +43,13 @@ _ = StandardScaler().fit_transform(X_test)
 X_test = pd.DataFrame(_,columns=X_test.columns)
 
 
-clf_feature_selection = RandomForestClassifier(bootstrap=False, criterion= 'entropy',
-          max_depth=20,  max_features= 'auto',
-          min_samples_leaf=5, min_samples_split=5, n_estimators=300)
+clf_feature_selection = LGBMClassifier(boosting_type='gbdt', class_weight='balanced',
+               colsample_bytree=1.0, importance_type='split', learning_rate=0.1,
+               max_depth=5, min_child_samples=20, min_child_weight=0.001,
+               min_split_gain=0, n_estimators=100, n_jobs=-1, num_leaves=31,
+               objective='binary', random_state=42, reg_alpha=0, reg_lambda=0,
+               silent=True, subsample=1.0, subsample_for_bin=200000,
+               subsample_freq=0)
 
 rfecv = RFECV(estimator=clf_feature_selection,
               step=1,
@@ -53,16 +57,17 @@ rfecv = RFECV(estimator=clf_feature_selection,
               scoring='roc_auc')
 params = {
         'random_state':[42],
-        'criterion':['entropy'],
-        'bootstrap': [False],
+        'objective':['binary'],
+        'class_weight': ['balanced', None],
+        'min_split_gain':[0, 0.01, 0.02,0.05, 0.1],
         'max_depth': [5, 10, 20, 30, 50],
-        'max_features': ['auto'],
-        'min_samples_leaf': [2, 5, 10, 20, 50],
-        'min_samples_split': [2, 5, 10,30,50, 70],
-        'n_estimators': [100,200, 300, 400],
+
+        'n_estimators': [100,200, 300, 400, 600, 800],
+        'reg_alpha':[0, 0.1, 0.2, 0.3, 0.5],
+        'reg_lambda':[0, 0.1, 0.2, 0.3, 0.5],
         'n_jobs': [-1]
     }
-clf = RandomForestClassifier()
+clf = LGBMClassifier()
 CV_rfc = GridSearchCV(estimator = clf,param_grid = params, cv = 5, scoring = 'roc_auc')
 piper = Pipeline([('feature selection', rfecv),
                   ('best_estimator_gridsearchCV',CV_rfc)])
