@@ -1,19 +1,17 @@
 import warnings
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
-
 from sklearn import model_selection
 
 warnings.simplefilter('ignore')
 from mlxtend.classifier import StackingCVClassifier
-
 # Classifier Libraries
 import scikitplot as skplt
 # Other Libraries
 from sklearn.model_selection import GridSearchCV, cross_val_score
-
-warnings.filterwarnings("ignore")
+from sklearn.neighbors import KNeighborsRegressor
 
 
 def score_optimization(_clf, _params, _metric, X_train, X_val, y_train, y_val, _cv):
@@ -79,12 +77,12 @@ def best_cv_score_classifier(_clf_list, _params_list, _metric, X_train, X_val, y
     return models, index
 
 
-def Stacking(_stacking_model_list, _final_clf, _metric,X_train, X_val, y_train, y_val, X_test, _cv):
+def stacking(_stacking_model_list, _final_clf, _metric, X_train, X_val, y_train, y_val, X_test, _cv):
     # Might wanna consider remove _final_clf from the _stacking_model_list
-    sclf = StackingCVClassifier(classifiers=_stacking_model_list,  use_probas=True,
-                                meta_classifier=_final_clf,  random_state=42)
+    sclf = StackingCVClassifier(classifiers=_stacking_model_list, use_probas=True,
+                                meta_classifier=_final_clf, random_state=42)
     scores = model_selection.cross_val_score(sclf, X_train, y_train, cv=_cv, scoring=_metric)
-    print('Cross-validated score:',scores)
+    print('Cross-validated score:', scores)
     print('-' * 20)
     predicted_probas = sclf.predict_proba(X_val)
     y_true = y_val
@@ -95,3 +93,22 @@ def Stacking(_stacking_model_list, _final_clf, _metric,X_train, X_val, y_train, 
 
     prediction = sclf.predict_proba(X_test)[:, 1]
     return prediction
+
+
+def nearest_neighbour_mean_label(_X_source, _X_target, _y_source, _n_neighbors):
+    neigh = KNeighborsRegressor(n_neighbors=_n_neighbors, n_jobs=-1)
+    neigh.fit(_X_source, _y_source)
+    _X_source['Mean ' + str(_n_neighbors) + ' neighbours'] = neigh.predict(_X_source)[:, 1]
+    _X_target['Mean ' + str(_n_neighbors) + ' neighbours'] = neigh.predict(_X_target)[:, 1]
+
+    return _X_source, _X_target
+
+
+def nearest_neighbour_mean_label_2(**kwargs):
+    _X_source, _X_target, _y_source, _n_neighbors = \
+        kwargs['X_source'], kwargs['X_target'],kwargs['y_source'], kwargs['n_neighbors']
+    neigh = KNeighborsRegressor(n_neighbors=_n_neighbors, n_jobs=-1)
+    neigh.fit(_X_source, _y_source)
+    #_X_source['Mean ' + str(_n_neighbors) + ' neighbours'] = neigh.predict(_X_source)[:, 1]
+    _X_target['Mean ' + str(_n_neighbors) + ' neighbours'] = pd.Series(data = neigh.predict(_X_target), name='Mean ' + str(_n_neighbors) + ' neighbours')
+    return _X_target, _n_neighbors

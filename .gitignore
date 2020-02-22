@@ -1,0 +1,14 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+.ipynb_checkpoints
+__pycache__
+Data/.ipynb_checkpoints/
+Oversampled Data/
+__pycache__/package_01.cpython-37.pyc

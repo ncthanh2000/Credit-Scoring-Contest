@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 import scikitplot as skplt
 # Self Written Library
-import package_01_score_optim as p01
+import package_01 as p01
 
 print("Finished import libraries")
 #Import Data

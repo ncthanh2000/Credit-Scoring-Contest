@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 import scikitplot as skplt
 # Self Written Library
-import package_01_score_optim as p01
+import package_01 as p01
 
 # noinspection DuplicatedCode
 print("Finished import libraries")
@@ -37,6 +37,16 @@ print("SMOTE oversampled data points:", len(X_train))
 # X_train, y_train = rus.fit_resample(X_train, y_train)
 
 X_test = test.drop(columns='id')
+X_train, n_neigh_train = p01.nearest_neighbour_mean_label_2(X_source=X_train, X_target=X_train,
+                                                            y_source=y_train, n_neighbors=10)
+print('-'*20)
+print(X_train[['Mean '+str(n_neigh_train)+' neighbours']].head())
+print('-'*20)
+
+X_val, n_neigh_val = p01.nearest_neighbour_mean_label_2(X_source=X_train.drop(columns = 'Mean '+str(n_neigh_train)+' neighbours')
+                                            , X_target=X_val, y_source=y_train, n_neighbors=10)
+X_test, n_neigh_test = p01.nearest_neighbour_mean_label_2(X_source=X_train.drop(columns = 'Mean '+str(n_neigh_train)+' neighbours')
+                                            , X_target=X_test, y_source=y_train, n_neighbors=10)
 classifiers = (RandomForestClassifier(), XGBClassifier(), LGBMClassifier())
 params = (
     dict(random_state=[42], criterion=['entropy', 'gini'], bootstrap=[True, False], max_depth=[5, 10, 20, 30, 50],
@@ -81,6 +91,6 @@ result['label'] = piper.predict_proba(X_test)[:, 1]
 result.to_csv('Result/Pipeline' + classifiers[best_index].__class__.__name__ + 'feature select.csv', index=False)
 
 stack_result = result = test[['id']]
-stack_result['label'] = p01.Stacking(best_models, best_models[best_index], 'roc_auc',
+stack_result['label'] = p01.stacking(best_models, best_models[best_index], 'roc_auc',
                                      X_train, X_val, y_train, y_val, X_test, 5)
 stack_result.to_csv('Result/Pipeline' + classifiers[best_index].__class__.__name__ + ' Stacked.csv', index=False)
